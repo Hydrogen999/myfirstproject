@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Paystack Payment Integration</title>
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 500px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .submit-btn {
+      background-color: #00c5a0;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .submit-btn:hover {
+      background-color: #00a883;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Customer Info</h2>
+  <form id="paymentForm">
+    <div class="form-group">
+      <label for="fullName">Full Name</label>
+      <input type="text" id="fullName" required>
+    </div>
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" required>
+    </div>
+    <div class="form-group">
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" required>
+    </div>
+    <div class="form-group">
+      <label for="address">Address</label>
+      <input type="text" id="address" required>
+    </div>
+    <div class="form-group">
+      <label for="city">City</label>
+      <input type="text" id="city" required>
+    </div>
+    <div class="form-group">
+      <label for="state">State</label>
+      <input type="text" id="state" required>
+    </div>
+    <div class="form-group">
+      <label for="zip">Zip Code</label>
+      <input type="text" id="zip" required>
+    </div>
+    <div class="form-group">
+      <label for="country">Country</label>
+      <select id="country" required>
+        <option value="">Select Country</option>
+        <option value="Nigeria">Nigeria</option>
+        <option value="Ghana">Ghana</option>
+        <option value="Kenya">Kenya</option>
+        <option value="South Africa">South Africa</option>
+      </select>
+    </div>
+    <button type="submit" class="submit-btn">Pay Now</button>
+  </form>
+</div>
+
+<script>
+  const paymentForm = document.getElementById('paymentForm');
+
+  paymentForm.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    let fullName = document.getElementById("fullName").value;
+    let email = document.getElementById("email").value;
+    let phone = document.getElementById("phone").value;
+    
+    let amount = 5000 * 100; // 💰 amount in kobo (5000 NGN)
+
+    let handler = PaystackPop.setup({
+      key: 'pk_test_c4a36f6b6aa8e1f3da46d8dbc95370cf715b4f56', // 🔑 Replace with your Paystack PUBLIC KEY
+      email: email,
+      amount: amount,
+      currency: "NGN",
+      ref: 'PSK_' + Math.floor((Math.random() * 1000000000) + 1),
+      metadata: {
+        custom_fields: [
+          {
+            display_name: "Full Name",
+            variable_name: "full_name",
+            value: fullName
+          },
+          {
+            display_name: "Phone Number",
+            variable_name: "phone_number",
+            value: phone
+          }
+        ]
+      },
+      callback: function(response) {
+        alert('Payment successful! Reference: ' + response.reference);
+        // ✅ You can now save this to your server
+      },
+      onClose: function() {
+        alert('Payment window closed');
+      }
+    });
+
+    handler.openIframe();
+  });
+</script>
+
+</body>
+</html>

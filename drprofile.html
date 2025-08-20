@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile | My E-commerce</title>
+  <style>
+    /* Reset & Base */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Segoe UI", sans-serif;
+    }
+    body {
+      background: #f4f6f9;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    /* Profile Card */
+    .profile-container {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 450px;
+      padding: 25px;
+    }
+    .profile-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .profile-pic {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgb(235, 109, 5);
+    }
+    .upload-btn {
+      margin-top: 10px;
+      display: inline-block;
+      background: rgb(235, 109, 5);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .upload-btn input {
+      display: none;
+    }
+
+    /* Form */
+    .profile-form label {
+      font-weight: bold;
+      display: block;
+      margin-top: 15px;
+      color: #444;
+    }
+    .profile-form input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+      font-size: 15px;
+    }
+    .save-btn {
+      margin-top: 20px;
+      width: 100%;
+      background: rgb(235, 109, 5);
+      color: white;
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .save-btn:hover {
+      background: rgb(235, 109, 5);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="profile-container">
+    <div class="profile-header">
+      <img src="https://via.placeholder.com/120" alt="Profile Picture" id="profilePic" class="profile-pic">
+      <label class="upload-btn">
+        Upload
+        <input type="file" id="uploadPic" accept="image/*">
+      </label>
+    </div>
+
+    <form class="profile-form" id="profileForm">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" value="John Doe" required>
+
+      <label for="email">Email</label>
+      <input type="email" id="email" value="johndoe@example.com" required>
+
+      <label for="phone">Phone</label>
+      <input type="text" id="phone" value="+123456789" required>
+
+      <label for="address">Address</label>
+      <input type="text" id="address" value="123 Street, City, Country" required>
+
+      <button type="submit" class="save-btn">Save Changes</button>
+    </form>
+  </div>
+
+  <script>
+    // Profile Picture Upload
+    const uploadPic = document.getElementById('uploadPic');
+    const profilePic = document.getElementById('profilePic');
+
+    uploadPic.addEventListener('change', function() {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          profilePic.src = e.target.result;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    // Save Form Data
+    document.getElementById('profileForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const userData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        address: document.getElementById('address').value,
+      };
+
+      // For now, just log the data (in real case, send to backend via fetch/AJAX)
+      console.log("User Data Saved:", userData);
+      alert("Profile Updated Successfully! ✅");
+    });
+  </script>
+
+</body>
+</html>

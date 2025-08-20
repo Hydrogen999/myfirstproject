@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>DRLUXURY SHOPPING PAGE</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      transition: background 0.3s, color 0.3s;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 2rem;
+      background-color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      transition: background 0.3s, color 0.3s;
+    }
+    .logo {
+      font-weight: bold;
+      color: #ff6600;
+      font-size: 1.5rem;
+    }
+    .search-bar {
+      flex: 1;
+      margin: 0 1rem;
+    }
+    .search-bar input {
+      width: 100%;
+      padding: 0.6rem 1rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      transition: background 0.3s, color 0.3s, border 0.3s;
+    }
+    .header-icons {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+    .icon-btn {
+      position: relative;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #333;
+      transition: color 0.3s;
+    }
+    .icon-count {
+      position: absolute;
+      top: -8px;
+      right: -10px;
+      background: #ff6600;
+      color: white;
+      font-size: 0.8rem;
+      font-weight: bold;
+      border-radius: 50%;
+      padding: 2px 6px;
+    }
+
+    /* Overlay */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+      z-index: 900;
+    }
+    .overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    /* Menu Panel */
+    .menu-panel {
+      position: fixed;
+      top: 0;
+      right: -250px;
+      width: 220px;
+      height: 100%;
+      background: white;
+      box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+      transition: right 0.3s ease;
+      z-index: 1000;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .menu-panel.open {
+      right: 0;
+    }
+    .menu-btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.8rem 1rem;
+      border: none;
+      background: #ff6600;
+      color: white;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    /* Sidebar (Cart + Wishlist) */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 350px;
+      height: 100%;
+      background: white;
+      box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+      transition: right 0.3s ease;
+      z-index: 1100;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar.open { right: 0; }
+    .sidebar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 0.5rem;
+    }
+    .close-btn {
+      cursor: pointer;
+      color: #999;
+      font-size: 1.3rem;
+    }
+    .sidebar-items {
+      flex: 1;
+      overflow-y: auto;
+      margin: 1rem 0;
+    }
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid #eee;
+      padding: 0.5rem 0;
+    }
+    .sidebar-item img {
+      width: 50px;
+      height: 50px;
+      border-radius: 5px;
+      object-fit: cover;
+    }
+
+    /* Product grid */
+    main {
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+    .product-card {
+      background: white;
+      border-radius: 5px;
+      padding: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: background 0.3s, color 0.3s;
+    }
+    .product-card img {
+      width: 100%;
+      border-radius: 5px;
+      margin-bottom: 0.5rem;
+    }
+    .product-card h3 {
+      margin: 0.5rem 0;
+      font-size: 1.1rem;
+    }
+    .product-card p {
+      margin: 0.3rem 0;
+      color: #555;
+    }
+    .product-card button {
+      margin: 0.3rem;
+      padding: 0.6rem 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color:black;
+      font-weight: bold;
+      font-size: 0.95rem;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    /* 🌙 Dark Theme */
+    body.dark {
+      background-color: #121212;
+      color: #eee;
+    }
+    body.dark header,
+    body.dark .menu-panel,
+    body.dark .sidebar,
+    body.dark .product-card {
+      background: #1e1e1e;
+      color: #eee;
+    }
+    body.dark input {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+    }
+    body.dark .menu-btn {
+      background: #333;
+      color: #fff;
+      border: 1px solid #555;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">DRLUXURY</div>
+  <div class="search-bar">
+    <input type="text" id="search" placeholder="Search for products...">
+  </div>
+  <div class="header-icons">
+    <div class="icon-btn" id="menu-toggle"><i class="fas fa-bars"></i></div>
+  </div>
+</header>
+
+<!-- Blur overlay -->
+<div class="overlay" id="overlay"></div>
+
+<!-- Menu Panel -->
+<div class="menu-panel" id="menu-panel">
+  <button class="menu-btn" id="open-cart">Cart 🛒 <span id="cart-count">0</span></button>
+  <button class="menu-btn" id="open-wishlist">Wishlist ❤️ <span id="wishlist-count">0</span></button>
+  <!-- 🌙 Theme Toggle -->
+  <button class="menu-btn" id="theme-toggle">🌙 Dark Mode</button>
+</div>
+
+<!-- Cart Sidebar -->
+<div class="sidebar" id="cart-sidebar">
+  <div class="sidebar-header">
+    <span>Your Cart</span>
+    <span class="close-btn" data-close="cart-sidebar">&times;</span>
+  </div>
+  <div class="sidebar-items" id="cart-items"></div>
+  <div id="cart-summary" style="border-top:1px solid #ddd;padding-top:1rem;">
+    <p id="cart-quantity">Items: 0</p>
+    <p id="cart-subtotal">Subtotal: ₦0</p>
+    <h3 id="cart-total">Total: ₦0</h3>
+    <button id="checkout-btn" style="margin-bottom:1rem;padding:6px 12px;background:#ff6600;color:white;border:none;border-radius:4px;cursor:pointer;"><a href="drpayment.html">Checkout</a></button>
+  </div>
+</div>
+
+<!-- Wishlist Sidebar -->
+<div class="sidebar" id="wishlist-sidebar">
+  <div class="sidebar-header">
+    <span>Your Wishlist</span>
+    <span class="close-btn" data-close="wishlist-sidebar">&times;</span>
+  </div>
+  <div class="sidebar-items" id="wishlist-items"></div>
+</div>
+
+<!-- Product Grid -->
+<main>
+  <div class="product-card" data-name="Luxury Bag" data-price="15000" data-img="img/bag1.jpg">
+    <img src="img/bag1.jpg" alt="Luxury Bag">
+    <h3>Luxury Bag</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+  <div class="product-card" data-name="Luxury Bag" data-price="15000" data-img="img/bag.jpg">
+    <img src="img/bag2.jpg" alt="Luxury Bag">
+    <h3>Luxury Bag</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+  <div class="product-card" data-name="NIKE SHOE" data-price="15000" data-img="img/nike1.jpg">
+    <img src="img/nike1.jpg" alt="NIKE SHOE">
+    <h3>NIKE SHOE</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+  <div class="product-card" data-name="CARTIER WRISR WATCH" data-price="1500000" data-img="img/car1.jpg">
+    <img src="img/car1.jpg" alt="CARTIER WRISR WATCH">
+    <h3>Original Cartier wrist watch</h3>
+    <p>₦1,500,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+  <div class="product-card" data-name="Luxury suit" data-price="15000" data-img="img/suit.jpg">
+    <img src="img/suit2.jpg" alt="Luxury Suit">
+    <h3>Luxury Suit</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+  <div class="product-card" data-name="Luxury gshockwatch" data-price="15000" data-img="img/gshock.jpg">
+    <img src="img/gshock.jpg" alt="Luxury G-Shock Watch">
+    <h3>Luxury G-Shock Watch</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+  <div class="product-card" data-name="Luxury balenciaga half shoe" data-price="150000" data-img="img/bal.jpg">
+    <img src="img/bal.jpg" alt="Luxury Balenciaga half shoe">
+    <h3>Luxury Balenciaga half shoe</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+
+  <div class="product-card" data-name="Luxury jacket" data-price="1500000" data-img="img/cool.jpg">
+    <img src="img/cool.jpg" alt="Luxury Jacket">
+    <h3>Luxury jacket for MEN</h3>
+    <p>₦1,500,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+  <div class="product-card" data-name="Quality baggie jean" data-price="50000" data-img="img/9.jpg">
+    <img src="img/9.jpg" alt="Quality baggie jean">
+    <h3>Quality baggie jean suitabel for Men</h3>
+    <p>₦50,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+  <div class="product-card" data-name="Luxury balenciaga half shoe" data-price="150000" data-img="img/bal.jpg">
+    <img src="img/bal.jpg" alt="Luxury shoe">
+    <h3>Luxury Balenciaga half shoe suitabel for Men</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+  <div class="product-card" data-name="NEW BALACE(NB)" data-price="150000" data-img="img/nb.jpg">
+    <img src="img/nb.jpg" alt="Luxury shoe">
+    <h3>Quality New Balance shoe suitable for male/female</h3>
+    <p>₦1,500,00</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+
+  <div class="product-card" data-name="Luxury balenciaga half shoe" data-price="150000" data-img="img/10.jpg">
+    <img src="img/10.jpg" alt="Luxury roundneck">
+    <h3>Quality roundneck suitable for MALE/FEMALE</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+
+  <div class="product-card" data-name="Quality Italian shoe" data-price="150000" data-img="img/classy.jpg">
+    <img src="img/classy.jpg" alt="Luxury shoe">
+    <h3>Quality Italian shoe suitabe for MEN only</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+
+  <div class="product-card" data-name="Quality full Drip" data-price="150000" data-img="img/upanddown.jpg">
+    <img src="img/upanddown.jpg" alt="Luxury cloth">
+    <h3>Quality full Drip suitable for male</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+
+  <div class="product-card" data-name="Luxury balenciaga half shoe" data-price="150000" data-img="img/bal.jpg">
+    <img src="img/nb.jpg" alt="Luxury Bag">
+    <h3>Quality New Balance shoe suitable for male/femle</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+
+  <div class="product-card" data-name="Luxury balenciaga half shoe" data-price="150000" data-img="img/bal.jpg">
+    <img src="img/nb.jpg" alt="Luxury Bag">
+    <h3>Quality New Balance shoe suitable for male/femle</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+
+  <div class="product-card" data-name="Luxury balenciaga half shoe" data-price="150000" data-img="img/bal.jpg">
+    <img src="img/nb.jpg" alt="Luxury Bag">
+    <h3>Quality New Balance shoe suitable for male/femle</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+
+  <div class="product-card" data-name="Luxury balenciaga half shoe" data-price="150000" data-img="img/bal.jpg">
+    <img src="img/nb.jpg" alt="Luxury Bag">
+    <h3>Quality New Balance shoe suitable for male/femle</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+
+  <div class="product-card" data-name="Luxury balenciaga half shoe" data-price="150000" data-img="img/bal.jpg">
+    <img src="img/nb.jpg" alt="Luxury Bag">
+    <h3>Quality New Balance shoe suitable for male/femle</h3>
+    <p>₦15,000</p>
+    <button class="add-to-cart">Add to Cart 🛒</button>
+    <button class="add-to-wishlist">Add to Wishlist ❤️</button>
+  </div>
+  <!-- Repeat more products as you had -->
+</main>
+
+<script>
+  const menuToggle = document.getElementById('menu-toggle');
+  const menuPanel = document.getElementById('menu-panel');
+  const overlay = document.getElementById('overlay');
+
+  menuToggle.addEventListener('click', () => {
+    menuPanel.classList.add('open');
+    overlay.classList.add('active');
+  });
+  overlay.addEventListener('click', () => {
+    menuPanel.classList.remove('open');
+    overlay.classList.remove('active');
+  });
+
+  document.getElementById('open-cart').addEventListener('click', () => {
+    document.getElementById('cart-sidebar').classList.add('open');
+    menuPanel.classList.remove('open');
+    overlay.classList.remove('active');
+  });
+
+  document.getElementById('open-wishlist').addEventListener('click', () => {
+    document.getElementById('wishlist-sidebar').classList.add('open');
+    menuPanel.classList.remove('open');
+    overlay.classList.remove('active');
+  });
+
+  document.querySelectorAll('.close-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.getElementById(btn.dataset.close).classList.remove('open');
+    });
+  });
+
+  // CART + WISHLIST SYSTEM
+  const cartItemsContainer = document.getElementById('cart-items');
+  const wishlistItemsContainer = document.getElementById('wishlist-items');
+  const cartCount = document.getElementById('cart-count');
+  const wishlistCount = document.getElementById('wishlist-count');
+  const cartTotal = document.getElementById('cart-total');
+
+  let cart = [];
+  let wishlist = [];
+
+  function updateCart() {
+    cartItemsContainer.innerHTML = "";
+    let total = 0;
+    let totalItems = 0;
+
+    cart.forEach((item, index) => {
+      total += item.price * item.qty;
+      totalItems += item.qty;
+
+      cartItemsContainer.innerHTML += `
+        <div class="sidebar-item">
+          <img src="${item.img}" alt="">
+          <div style="flex:1">
+            <p>${item.name}</p>
+            <p>₦${item.price.toLocaleString()}</p>
+            <div style="display:flex;align-items:center;gap:5px;">
+              <button onclick="decreaseQty(${index})" style="padding:2px 6px;">➖</button>
+              <span>${item.qty}</span>
+              <button onclick="increaseQty(${index})" style="padding:2px 6px;">➕</button>
+            </div>
+          </div>
+          <button onclick="removeFromCart(${index})" style="background:red;color:white;border:none;padding:3px 6px;border-radius:4px;cursor:pointer;">✖</button>
+        </div>`;
+    });
+
+    cartCount.textContent = totalItems;
+    document.getElementById("cart-quantity").textContent = "Items: " + totalItems;
+    document.getElementById("cart-subtotal").textContent = "Subtotal: ₦" + total.toLocaleString();
+    document.getElementById("cart-total").textContent = "Total: ₦" + total.toLocaleString();
+  }
+
+  function updateWishlist() {
+    wishlistItemsContainer.innerHTML = "";
+    wishlist.forEach((item, index) => {
+      wishlistItemsContainer.innerHTML += `
+        <div class="sidebar-item">
+          <img src="${item.img}" alt="">
+          <div style="flex:1">
+            <p>${item.name}</p>
+            <p>₦${item.price.toLocaleString()}</p>
+          </div>
+          <button onclick="addWishlistToCart(${index})" style="background:#ff6600;color:white;border:none;padding:3px 6px;border-radius:4px;cursor:pointer;">🛒</button>
+          <button onclick="removeFromWishlist(${index})" style="background:red;color:white;border:none;padding:3px 6px;border-radius:4px;cursor:pointer;">✖</button>
+        </div>`;
+    });
+    wishlistCount.textContent = wishlist.length;
+  }
+
+  function removeFromCart(index) {
+    cart.splice(index, 1);
+    updateCart();
+  }
+  function increaseQty(index) {
+    cart[index].qty++;
+    updateCart();
+  }
+  function decreaseQty(index) {
+    if (cart[index].qty > 1) {
+      cart[index].qty--;
+    } else {
+      cart.splice(index, 1);
+    }
+    updateCart();
+  }
+  function addToCart(product) {
+    let existing = cart.find(item => item.name === product.name);
+    if (existing) {
+      existing.qty += 1;
+    } else {
+      cart.push({...product, qty: 1});
+    }
+    updateCart();
+  }
+  function removeFromWishlist(index) {
+    wishlist.splice(index, 1);
+    updateWishlist();
+  }
+  function addWishlistToCart(index) {
+    addToCart(wishlist[index]);
+    removeFromWishlist(index);
+  }
+
+  document.querySelectorAll('.add-to-cart').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const product = e.target.closest('.product-card');
+      addToCart({
+        name: product.dataset.name,
+        price: parseInt(product.dataset.price),
+        img: product.dataset.img
+      });
+    });
+  });
+
+  document.querySelectorAll('.add-to-wishlist').forEach(btn => {
+    btn.addEventListener('click', e => {
+      const product = e.target.closest('.product-card');
+      wishlist.push({
+        name: product.dataset.name,
+        price: parseInt(product.dataset.price),
+        img: product.dataset.img
+      });
+      updateWishlist();
+    });
+  });
+
+  // 🌙 THEME TOGGLE
+  const themeToggle = document.getElementById("theme-toggle");
+  if (localStorage.getItem("theme") === "dark") {
+    document.body.classList.add("dark");
+    themeToggle.textContent = "☀️ Light Mode";
+  }
+  themeToggle.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    if (document.body.classList.contains("dark")) {
+      themeToggle.textContent = "☀️ Light Mode";
+      localStorage.setItem("theme", "dark");
+    } else {
+      themeToggle.textContent = "🌙 Dark Mode";
+      localStorage.setItem("theme", "light");
+    }
+  });
+
+  // 🔍 SEARCH FUNCTIONALITY
+  const searchInput = document.getElementById("search");
+  searchInput.addEventListener("keyup", function () {
+    const filter = this.value.toLowerCase();
+    const products = document.querySelectorAll(".product-card");
+
+    products.forEach(product => {
+      const name = product.dataset.name.toLowerCase();
+      const visible = name.includes(filter);
+      product.style.display = visible ? "" : "none";
+    });
+  });
+</script>
+
+</body>
+</html>
